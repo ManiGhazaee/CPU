@@ -1,0 +1,70 @@
+    jmp     $start
+    .zero   // for storing pc before going to interrupt_handler
+    jmp     $interrupt_handler // pc = 2 after storing pc
+// program starts here
+$start:
+    // storing a random number in ac to test 
+    // keeping the value of ac after executing interrupt_handler
+    lac     0d12345 
+    ion     // setting interrupt on
+    sub     0d12345 // checking if ac is the same after interrupt_handler
+    je      $test_success // zero flag == 1
+    jmp     $test_fail // zero flag == 0
+$test_success:
+    // setting the print_addr to the success string that $print needs
+    lac     $test_success_str 
+    wac     $print_addr
+    // setting the address of $print return that $print will go to after finishing printing
+    lac     $finish
+    wac     $print_return
+    // it behaves like a function after setting its (parameter) print_addr and (return) print_return 
+    jmp     $print
+$test_fail:
+    // same thing like test_success
+    lac     $test_fail_str
+    wac     $print_addr
+    lac     $finish
+    wac     $print_return
+    jmp     $print
+$interrupt_handler:
+    // storing ac
+    wac     $temp_ac 
+    // setting print parameter
+    lac     $interrupt_str
+    wac     $print_addr
+    // setting print return address
+    lac     $interrupt_handler_print_return
+    wac     $print_return
+    jmp     $print
+$interrupt_handler_print_return:
+    // restoring the ac value before interrupt
+    laci    $temp_ac
+    // jumping to the pc stored before executing interrupt
+    jmp     [0d1]
+$print:
+    // loading print address, it is going to be the address of a character
+    laci    $print_addr
+    rac     // reading memory at ac (mem[ac]) to load the character in ac
+    jei     $print_return // if it is zero (meaning end of string) then jump to the address stored in print_return
+    out     // load output register with ac and set fgo to 0 
+    laci    $print_addr 
+    add     0d1 // incrementing the print_addr to print the next character
+    wac     $print_addr // writing the incremented address
+    jmp     $print // loop
+$finish:
+    hlt     // halt the entire process
+$print_addr: // $print (parameter)
+    .zero
+$print_return: // $print (return address) 
+    .zero
+$interrupt_str:
+    .data   "interrupt handled\n"
+    .zero
+$test_success_str:
+    .data   "test finished successfully"
+    .zero
+$test_fail_str:
+    .data   "test failed"
+    .zero
+$temp_ac: // for storing ac
+    .zero

@@ -1,0 +1,39 @@
+$start:
+    lac     0d20
+    sub     0d40
+    jg      $set_addr_greater
+    jl      $set_addr_less
+    jmp     $set_addr_equal
+$set_addr_greater:
+    lac     $greater_str
+    jmp     $print_result
+$set_addr_less:
+    lac     $less_str
+    jmp     $print_result
+$set_addr_equal:
+    lac     $equal_str
+    jmp     $print_result
+$print_result:
+    wac     $addr
+$print:
+    laci    $addr
+    rac
+    je      $finish
+    out     
+    laci    $addr
+    add     0d1
+    wac     $addr
+    jmp     $print
+$finish:
+    hlt
+$addr:
+    .zero
+$greater_str:
+    .data   "greater"
+    .zero
+$less_str:
+    .data   "less"
+    .zero
+$equal_str:
+    .data   "equal"
+    .zero

@@ -1,0 +1,16 @@
+$start:
+    laci    $address
+    rac
+    je      $finish
+    out     
+    laci    $address
+    add     0d1
+    wac     $address
+    jmp     $start
+$finish:
+    hlt
+$address:
+    .data   $hello_world
+$hello_world:
+    .data   "hello, world!"
+    .zero
