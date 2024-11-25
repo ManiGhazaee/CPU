@@ -16,7 +16,7 @@ pub struct Config {
     #[arg(long, short)]
     pub dest: Option<String>,
 
-    /// Length of the memory 
+    /// Length of the memory
     #[arg(long, short, default_value_t = 256)]
     pub len: usize,
 }
@@ -164,7 +164,6 @@ fn parse_asm(src: &str) -> Vec<Instruction> {
             "rcl" => inst_arm!(line, insts, label, InstType::Rcl, Flags::NONE),
             "hlt" => inst_arm!(line, insts, label, InstType::Hlt, Flags::NONE),
             "lac" => inst_arm!(line, insts, label, InstType::Lac, Flags::NONE),
-            "laci" => inst_arm!(line, insts, label, InstType::Lac, Flags(vec!['i'])),
             "ltr" => inst_arm!(line, insts, label, InstType::Ltr, Flags::NONE),
             "wac" => inst_arm!(line, insts, label, InstType::Wac, Flags::NONE),
             "rac" => inst_arm!(line, insts, label, InstType::Rac, Flags::NONE),
@@ -173,15 +172,26 @@ fn parse_asm(src: &str) -> Vec<Instruction> {
             "jne" => inst_arm!(line, insts, label, InstType::Jne, Flags::NONE),
             "jg" => inst_arm!(line, insts, label, InstType::Jg, Flags::NONE),
             "jl" => inst_arm!(line, insts, label, InstType::Jl, Flags::NONE),
+            "inp" => inst_arm!(line, insts, label, InstType::Inp, Flags::NONE),
+            "out" => inst_arm!(line, insts, label, InstType::Out, Flags::NONE),
+            "ion" => inst_arm!(line, insts, label, InstType::Ion, Flags::NONE),
+            "iof" => inst_arm!(line, insts, label, InstType::Iof, Flags::NONE),
+            "nop" => inst_arm!(line, insts, label, InstType::Nop, Flags::NONE),
+            "mta" => inst_arm!(line, insts, label, InstType::Mta, Flags::NONE),
+            "mat" => inst_arm!(line, insts, label, InstType::Mat, Flags::NONE),
+            "andi" => inst_arm!(line, insts, label, InstType::And, Flags(vec!['i'])),
+            "ori" => inst_arm!(line, insts, label, InstType::Or, Flags(vec!['i'])),
+            "addi" => inst_arm!(line, insts, label, InstType::Add, Flags(vec!['i'])),
+            "subi" => inst_arm!(line, insts, label, InstType::Sub, Flags(vec!['i'])),
+            "xori" => inst_arm!(line, insts, label, InstType::Xor, Flags(vec!['i'])),
+            "laci" => inst_arm!(line, insts, label, InstType::Lac, Flags(vec!['i'])),
+            "ltri" => inst_arm!(line, insts, label, InstType::Ltr, Flags(vec!['i'])),
+            "waci" => inst_arm!(line, insts, label, InstType::Wac, Flags(vec!['i'])),
             "jmpi" => inst_arm!(line, insts, label, InstType::Jmp, Flags(vec!['i'])),
             "jei" => inst_arm!(line, insts, label, InstType::Je, Flags(vec!['i'])),
             "jnei" => inst_arm!(line, insts, label, InstType::Jne, Flags(vec!['i'])),
             "jgi" => inst_arm!(line, insts, label, InstType::Jg, Flags(vec!['i'])),
             "jli" => inst_arm!(line, insts, label, InstType::Jl, Flags(vec!['i'])),
-            "out" => inst_arm!(line, insts, label, InstType::Out, Flags::NONE),
-            "ion" => inst_arm!(line, insts, label, InstType::Ion, Flags::NONE),
-            "iof" => inst_arm!(line, insts, label, InstType::Iof, Flags::NONE),
-            "nop" => inst_arm!(line, insts, label, InstType::Nop, Flags::NONE),
             _ => panic!("unknown instruction {word}"),
         }
     }
@@ -277,6 +287,9 @@ impl Bin {
                     InstType::Jg => 20,
                     InstType::Jl => 21,
                     InstType::Rac => 22,
+                    InstType::Mat => 118,
+                    InstType::Mta => 119,
+                    InstType::Inp => 120,
                     InstType::Nop => 121,
                     InstType::Iof => 122,
                     InstType::Ion => 123,
@@ -394,14 +407,20 @@ enum InstType {
     Jg,
     /// jmp if sign flag == 1
     Jl,
-    // send accumulator register's value to output register
+    // move accumulator register's value to output register
     Out,
+    // move input register's value to accumulator register
+    Inp,
     // set interrupt enable to true
     Ion,
     // set interrupt enable to false
     Iof,
     // no operation
     Nop,
+    // move ac to tr
+    Mat,
+    // move tr to ac
+    Mta,
 }
 
 #[allow(unused)]

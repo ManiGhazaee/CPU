@@ -58,14 +58,16 @@ module tb;
         .outp_reg(outp_reg));
     
 
+    // initializing 
     initial begin
         fgi_set <= 0;
         fgo_set <= 1;
         inp_reg <= 0;
         #1;
-        
     end
 
+    // simulating output stream
+    // printing output register as char everytime cu sets fgo_get to 0
     always @(posedge clk) begin
         if (fgo_get == 0) begin
             $write("%c", outp_reg);
@@ -85,7 +87,7 @@ module tb;
         #1; 
         // starting the process
         reset <= 0;
-        // the time to keep the cpu alive 
+        // the time to keep the cpu alive if not halted by instruction 
         #100000000;
         
         // used for printing memory 
@@ -122,27 +124,29 @@ endmodule
 `define  ALSU_ASHL 13
 `define  ALSU_ROL  14
 `define  ALSU_RCL  15
+`define  ALSU_INP  16
 
 // f[0] zero flag == 0 ? non-zero : zero 
 // f[1] sign flag == 0 ? positive : negative 
-module alsu(input clk, input reset, input alsu_en, input [3:0] alsu_sel, input [31:0] x, input [31:0] y, output [31:0] z, output reg [7:0] f);
+module alsu(input clk, input reset, input alsu_en, input [31:0] inp_reg, input [4:0] alsu_sel, input [31:0] x, input [31:0] y, output [31:0] z, output reg [7:0] f);
     assign z = 
         (alsu_sel == 0 ) ? x + y :
         (alsu_sel == 1 ) ? x + ~y + 1 :
-        (alsu_sel == 2 ) ? x + 1 :
-        (alsu_sel == 3 ) ? x - 1 :
+        (alsu_sel == 2 ) ? y + 1 :
+        (alsu_sel == 3 ) ? y - 1 :
         (alsu_sel == 4 ) ? x & y :
         (alsu_sel == 5 ) ? x | y :
         (alsu_sel == 6 ) ? x ^ y :
-        (alsu_sel == 7 ) ? ~x :
-        (alsu_sel == 8 ) ? x >> 1 :
-        (alsu_sel == 9 ) ? x >>> 1 :
-        (alsu_sel == 10) ? (x >> 1) | (x << 31) :
-        (alsu_sel == 11) ? (x >> 1) | (x << 31) : // TODO
-        (alsu_sel == 12) ? x << 1 :
-        (alsu_sel == 13) ? x <<< 1 :
-        (alsu_sel == 14) ? (x << 1) | (x >> 31) :
-        (alsu_sel == 15) ? (x << 1) | (x >> 31) : // TODO
+        (alsu_sel == 7 ) ? ~y :
+        (alsu_sel == 8 ) ? y >> 1 :
+        (alsu_sel == 9 ) ? y >>> 1 :
+        (alsu_sel == 10) ? (y >> 1) | (y << 31) :
+        (alsu_sel == 11) ? (y >> 1) | (y << 31) : // TODO
+        (alsu_sel == 12) ? y << 1 :
+        (alsu_sel == 13) ? y <<< 1 :
+        (alsu_sel == 14) ? (y << 1) | (y >> 31) :
+        (alsu_sel == 15) ? (y << 1) | (y >> 31) : // TODO
+        (alsu_sel == 16) ? inp_reg : // TODO
         x;
 
     always @(posedge clk) begin 
@@ -221,7 +225,7 @@ module cpu(input clk,
     // all output regs of cu module
     wire [3:0] sc; // stage counter  
     wire [3:0] bus_sel; // bus selector, input of bus module
-    wire [3:0] alsu_sel; // alsu selector, input of alsu module
+    wire [4:0] alsu_sel; // alsu selector, input of alsu module
 
     // enable register input bit
     // all output regs of cu module
@@ -281,7 +285,7 @@ module cpu(input clk,
     bus bus0(mem_in, pc, ar, ir, iv, dr, tr, ac, md, outp, bus_sel, bus);
 
     // arithmetic logic shift unit
-    alsu alsu0(clk, reset, alsu_en, alsu_sel, dr, ac, ac_in, flags);
+    alsu alsu0(clk, reset, alsu_en, inp_reg, alsu_sel, dr, ac, ac_in, flags);
 
     // control unit
     cu cu0(clk, 
@@ -415,36 +419,39 @@ module i_register(input clk,
 endmodule
 
 // instructions 
-`define  INST_AND  0
-`define  INST_OR   1
-`define  INST_INC  2 
-`define  INST_DEC  3
-`define  INST_ADD  4
-`define  INST_SUB  5
-`define  INST_XOR  6
-`define  INST_NOT  7
-`define  INST_SHR  8
-`define  INST_ASHR 9
-`define  INST_ROR  10
-`define  INST_RCR  11 
-`define  INST_SHL  12
-`define  INST_ASHL 13
-`define  INST_ROL  14
-`define  INST_RCL  15
-`define  INST_WAC  16 
-`define  INST_JMP  17
-`define  INST_JE   18
-`define  INST_JNE  19
-`define  INST_JG   20
-`define  INST_JL   21
-`define  INST_RAC  22
-`define  INST_NOP  121
-`define  INST_IOF  122
-`define  INST_ION  123
-`define  INST_OUT  124
-`define  INST_LTR  125
-`define  INST_LAC  126
-`define  INST_HLT  127
+`define  INST_AND    0
+`define  INST_OR     1
+`define  INST_INC    2 
+`define  INST_DEC    3
+`define  INST_ADD    4
+`define  INST_SUB    5
+`define  INST_XOR    6
+`define  INST_NOT    7
+`define  INST_SHR    8
+`define  INST_ASHR   9
+`define  INST_ROR    10
+`define  INST_RCR    11 
+`define  INST_SHL    12
+`define  INST_ASHL   13
+`define  INST_ROL    14
+`define  INST_RCL    15
+`define  INST_WAC    16 
+`define  INST_JMP    17
+`define  INST_JE     18
+`define  INST_JNE    19
+`define  INST_JG     20
+`define  INST_JL     21
+`define  INST_RAC    22
+`define  INST_MAT    118
+`define  INST_MTA    119
+`define  INST_INP    120
+`define  INST_NOP    121
+`define  INST_IOF    122
+`define  INST_ION    123
+`define  INST_OUT    124
+`define  INST_LTR    125
+`define  INST_LAC    126
+`define  INST_HLT    127
 
 // interrupt return address: storing the value of pc register and setting the pc to its value after returning interrupt
 `define I_RET_ADDRESS 1
@@ -494,7 +501,7 @@ module cu(input clk,
     output reg mem_rw,
     output reg mem_en,
     
-    output reg [3:0] alsu_sel,
+    output reg [4:0] alsu_sel,
 
     output reg fgo);
 
@@ -685,6 +692,16 @@ module cu(input clk,
                             pc_en <= 1;
                         end 
                     end
+                    `INST_MAT: begin // move ac to tr
+                        bus_sel <= `BUS_AC;
+                        tr_en <= 1;
+                    end
+                    `INST_MTA: begin // move tr to ac
+                        sc <= 6;
+                        bus_sel <= `BUS_TR;
+                        dr_en <= 1;
+                        ac_clr <= 1;
+                    end
                     `INST_NOP: begin // no op
                         // no operation
                     end
@@ -693,6 +710,12 @@ module cu(input clk,
                     end
                     `INST_ION: begin // interrupt on
                         ien <= 1;
+                    end
+                    `INST_INP: begin // inp_reg to ac 
+                        alsu_sel <= `ALSU_INP;
+                        ac_en <= 1;
+                        alsu_en <= 1;
+                        fgi <= 0;
                     end
                     `INST_OUT: begin // ac to outp_reg
                         sc <= 6;
@@ -708,7 +731,7 @@ module cu(input clk,
                         ac_clr <= 1;
                     end
                     `INST_HLT: begin // simulating halting the process
-                        $display("\nHalting the process");
+                        $display("\nHalt");
                         $finish;
                     end
                 endcase
@@ -718,6 +741,11 @@ module cu(input clk,
                 case (ir[30:24])
                     `INST_OUT: begin
                         fgo <= 0;
+                    end
+                    `INST_MTA: begin // move tr to ac
+                        alsu_sel <= `ALSU_OR;
+                        ac_en <= 1;
+                        alsu_en <= 1;
                     end
                     `INST_WAC: begin 
                         sc <= 7;

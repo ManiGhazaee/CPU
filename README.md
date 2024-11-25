@@ -1,6 +1,51 @@
 ## CPU
 
-### Diagram
+### Table of Contents
+
+- [Usage](#usage)
+- [Module Interaction Diagram](#module-interaction-diagram)
+- [Registers](#registers)
+- [Flags](#flags)
+- [Instruction Format](#instruction-format)
+- [Assembler](#assembler-1)
+  - [Instructions](#instructions)
+  - [Labels](#labels)
+  - [Addressing Mode](#addressing-mode)
+  - [Value Types](#value-types)
+  - [Directives](#directives)
+
+A accumulator based CPU architecture implemented in Verilog and its assembler in Rust, featuring simple instruction set and custom assembly language.
+
+### Usage
+
+#### Assembler
+
+Assemble with `bin/assembler.exe` to generate memory for `src/cpu.v`, e.g.
+
+```bash
+./bin/assembler.exe --src ./examples/test.txt --dest ./memory.txt
+```
+
+Or build the assembler with:
+
+```bash
+cd ./assembler
+cargo build --release
+```
+
+And then use assembler with the binary generated at `./assembler/target/release/assembler.exe`.
+
+#### Cpu
+
+Run `./src/cpu.v` with [Verilog HDL](https://marketplace.visualstudio.com/items?itemName=leafvmaple.verilog) vscode extension or your custom command but note that `./src/cpu.v` needs to read `./memory.txt`:
+
+```verilog
+// src/cpu.v:
+// reading a file directly to memory and initializing it
+$readmemh("../memory.txt", mem);
+```
+
+### Module Interaction Diagram
 
 ![](./assets/diagram.png)
 
@@ -23,8 +68,8 @@
 ### Instruction Format
 
 | Addressing mode | Opcode | Operand/Address |
-| - | - | - |
-| 1 bit | 7 bits | 24 bits |
+| --------------- | ------ | --------------- |
+| 1 bit           | 7 bits | 24 bits         |
 
 ## Assembler
 
@@ -34,20 +79,20 @@
 | ----------- | --------------------------------------- | ------ | ----------- |
 | and         | logical and                             | 0x00   | 1           |
 | or          | logical or                              | 0x01   | 1           |
-| inc         | increment operand by 1                  | 0x02   | 1           |
-| dec         | decrement operand by 1                  | 0x03   | 1           |
+| inc         | increment ac by 1                       | 0x02   | 0           |
+| dec         | decrement ac by 1                       | 0x03   | 0           |
 | add         | add operand to ac                       | 0x04   | 1           |
 | sub         | subtract ac from operand                | 0x05   | 1           |
 | xor         | exclusive or                            | 0x06   | 1           |
-| not         | negate operand                          | 0x07   | 1           |
-| shr         | logical shift right                     | 0x08   | 1           |
-| ashr        | arithmetic shift right                  | 0x09   | 1           |
-| ror         | rotate right                            | 0x0A   | 1           |
-| rcr         | rotate right through carry              | 0x0B   | 1           |
-| shl         | logical shift left                      | 0x0C   | 1           |
-| ashl        | arithmatic shift left                   | 0x0D   | 1           |
-| rol         | rotate left                             | 0x0E   | 1           |
-| rcl         | rotate left through carry               | 0x0F   | 1           |
+| not         | negate ac                               | 0x07   | 0           |
+| shr         | logical shift right                     | 0x08   | 0           |
+| ashr        | arithmetic shift right                  | 0x09   | 0           |
+| ror         | rotate right                            | 0x0A   | 0           |
+| rcr         | rotate right through carry              | 0x0B   | 0           |
+| shl         | logical shift left                      | 0x0C   | 0           |
+| ashl        | arithmatic shift left                   | 0x0D   | 0           |
+| rol         | rotate left                             | 0x0E   | 0           |
+| rcl         | rotate left through carry               | 0x0F   | 0           |
 | wac         | write ac to memory at address operand   | 0x10   | 1           |
 | jmp         | unconditional branch to address operand | 0x11   | 1           |
 | je          | jmp if zf is 1                          | 0x12   | 1           |
@@ -55,6 +100,9 @@
 | jg          | jmp if sf is 0 and zf is 0              | 0x14   | 1           |
 | jl          | jmp if sf is 1 and zf is 0              | 0x15   | 1           |
 | rac         | read memory at address ac, store at ac  | 0x16   | 0           |
+| mat         | move ac to tr                           | 0x76   | 0           |
+| mta         | move tr to ac                           | 0x77   | 0           |
+| inp         | move inp to ac and set fgi to 0         | 0x78   | 0           |
 | nop         | no operation                            | 0x79   | 0           |
 | iof         | interrupt off                           | 0x7A   | 0           |
 | ion         | interrupt on                            | 0x7B   | 0           |
@@ -107,5 +155,4 @@ e.g.
 ### Directives
 
 - `.zero` 32 bit `0`, used as a default value
-- `.data` start of a data segment which accepts direct value type or strings, e.g. `.data "hello"` or `.data 0d99`
-
+- `.data` start of a data segment which accepts immediate value type or strings, e.g. `.data "foo bar"` or `.data 0d99`
