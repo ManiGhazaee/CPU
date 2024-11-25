@@ -15,6 +15,7 @@ A accumulator based CPU architecture implemented in Verilog and its assembler in
   - [Addressing Mode](#addressing-mode)
   - [Value Types](#value-types)
   - [Directives](#directives)
+- [Examples](#examples)
 
 ### Usage
 
@@ -156,3 +157,23 @@ e.g.
 
 - `.zero` 32 bit `0`, used as a default value
 - `.data` start of a data segment which accepts immediate value type or strings, e.g. `.data "foo bar"` or `.data 0d99`
+
+## Examples
+
+[Hello World](./examples/hello_world.txt) a simple hello world using `out` instruction.
+
+[Comparison](./examples/test.txt) a simple code that is similar to:
+
+```python
+if a > b:
+  print("greater")
+elif a < b:
+  print("less")
+else:
+  print("equal")
+```
+with `a` and `b` hard coded.
+
+[Interrupt](./examples/interrupt.txt) a simple code that simulates an interrupt.
+prints `"interrupt handled"` if it has successfully executed interrupt code.
+prints `"test finished successfully"` if value in accumulator is the same before and after interrupt handle, else prints `"test failed"`
