@@ -2,48 +2,7 @@
 
 ### Diagram
 
-```mermaid
----
-config:
-  layout: elk
-  theme: dark
----
-
-graph TB
-    MEMORY[Memory]
-    IO[I/O]
-    subgraph CPU
-        CU[CU]
-        BUS[BUS]
-        ALSU[ALSU]
-        
-        subgraph Registers
-            AR[AR]
-            MD[MD]
-            AC[AC]
-            PC[PC]
-            DR[DR]
-            TR[TR]
-            IR[IR]
-            OUTP[OUTP]
-            INP[INP]
-        end
-    end
-    
-    CU -->|R/W Control| MEMORY
-    BUS <-->|Data Transfer| MEMORY
-    CU -->|Control Signals| Registers
-    CU <-->|Instruction & Flags| ALSU
-    CU -->|Control Signals| BUS
-    BUS <-->|Transfer Between Regs| Registers
-    ALSU <-->|Arithmetic Operations| AC
-    AR --> MEMORY
-    MD --> MEMORY
-    OUTP --> IO
-    IO --> INP
-    IR --> CU
-    DR --> ALSU
-```
+![](./assets/diagram.png)
 
 ### Registers
 
