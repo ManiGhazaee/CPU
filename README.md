@@ -1,5 +1,7 @@
 ## CPU
 
+A accumulator based CPU architecture implemented in Verilog and its assembler in Rust, featuring simple instruction set and custom assembly language.
+
 ### Table of Contents
 
 - [Usage](#usage)
@@ -13,8 +15,6 @@
   - [Addressing Mode](#addressing-mode)
   - [Value Types](#value-types)
   - [Directives](#directives)
-
-A accumulator based CPU architecture implemented in Verilog and its assembler in Rust, featuring simple instruction set and custom assembly language.
 
 ### Usage
 
