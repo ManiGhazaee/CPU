@@ -83,7 +83,7 @@ $readmemh("../memory.txt", mem);
 | inc         | increment ac by 1                       | 0x02   | 0           |
 | dec         | decrement ac by 1                       | 0x03   | 0           |
 | add         | add operand to ac                       | 0x04   | 1           |
-| sub         | subtract ac from operand                | 0x05   | 1           |
+| sub         | subtract operand from ac                | 0x05   | 1           |
 | xor         | exclusive or                            | 0x06   | 1           |
 | not         | negate ac                               | 0x07   | 0           |
 | shr         | logical shift right                     | 0x08   | 0           |
@@ -101,6 +101,8 @@ $readmemh("../memory.txt", mem);
 | jg          | jmp if sf is 0 and zf is 0              | 0x14   | 1           |
 | jl          | jmp if sf is 1 and zf is 0              | 0x15   | 1           |
 | rac         | read memory at address ac, store at ac  | 0x16   | 0           |
+| div         | ac divided by operand                   | 0x17   | 1           |
+| mul         | ac multiplied by operand                | 0x18   | 1           |
 | mat         | move ac to tr                           | 0x76   | 0           |
 | mta         | move tr to ac                           | 0x77   | 0           |
 | inp         | move inp to ac and set fgi to 0         | 0x78   | 0           |
@@ -172,6 +174,7 @@ elif a < b:
 else:
   print("equal")
 ```
+
 with `a` and `b` hard coded.
 
 [Interrupt](./examples/interrupt.txt) a simple code that simulates an interrupt.

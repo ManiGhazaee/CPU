@@ -1,0 +1,71 @@
+$start:
+    // print("2") 
+    lac     0d2
+    ori     $decimal_print_mask
+    out
+    laci    $new_line
+    out
+
+$outer_loop:
+    lac     0d2
+    wac     $j
+    
+$inner_loop:
+    // i - (i / j) * j == 0 ? goto not_prime : ...
+    laci    $i
+    divi    $j
+    muli    $j
+    wac     $temp_mod
+    laci    $i
+    subi    $temp_mod
+    je      $not_prime
+    
+    // j == i - 1 ? goto endof_inner : ...
+    laci    $i
+    dec
+    subi    $j 
+    je      $endof_inner
+
+    // j++; goto inner_loop 
+    laci    $j
+    inc
+    wac     $j
+    jmp     $inner_loop
+
+$endof_inner:
+    // print(i); i++; i == bound ? goto finish : goto outer_loop
+    laci    $i
+    ori     $decimal_print_mask
+    out
+    laci    $new_line
+    out
+    laci    $i
+    inc
+    wac     $i 
+    subi    $bound     
+    je      $finish
+    jmp     $outer_loop
+
+$not_prime:
+    // i++; i == bound ? goto finish : goto outer_loop
+    laci    $i
+    inc
+    wac     $i
+    subi    $bound     
+    je      $finish
+    jmp     $outer_loop
+
+$finish:
+    hlt
+$bound:
+    .data    0d100
+$i:
+    .data    0d2
+$j:
+    .data    0d1
+$temp_mod:
+    .zero
+$decimal_print_mask:
+    .data   0d1073741824
+$new_line:
+    .data   "\n"

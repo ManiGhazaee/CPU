@@ -70,15 +70,29 @@ module tb;
     // printing output register as char everytime cu sets fgo_get to 0
     always @(posedge clk) begin
         if (fgo_get == 0) begin
-            $write("%c", outp_reg);
+            // $display("%d", outp_reg);
+            case (outp_reg[31:30]) 
+                2'd0 : begin
+                    $write("%c", outp_reg);
+                end
+                2'd1 : begin
+                    $write("%d", outp_reg[29:0]);
+                end
+                2'd2 : begin
+                    $write("%b", outp_reg[29:0]);
+                end
+                default: begin
+                    $write("%d", outp_reg);
+                end
+            endcase
             fgo_set <= 1;
         end
     end
 
     // simulation
     initial begin
-        $dumpfile("cpu.vcd");
-        $dumpvars(0, tb);
+        // $dumpfile("cpu.vcd");
+        // $dumpvars(0, tb);
 
         // reading a file directly to memory and initializing it
         $readmemh("../memory.txt", mem);
@@ -125,13 +139,15 @@ endmodule
 `define  ALSU_ROL  14
 `define  ALSU_RCL  15
 `define  ALSU_INP  16
+`define  ALSU_DIV  17
+`define  ALSU_MUL  18
 
 // f[0] zero flag == 0 ? non-zero : zero 
 // f[1] sign flag == 0 ? positive : negative 
 module alsu(input clk, input reset, input alsu_en, input [31:0] inp_reg, input [4:0] alsu_sel, input [31:0] x, input [31:0] y, output [31:0] z, output reg [7:0] f);
     assign z = 
-        (alsu_sel == 0 ) ? x + y :
-        (alsu_sel == 1 ) ? x + ~y + 1 :
+        (alsu_sel == 0 ) ? y + x :
+        (alsu_sel == 1 ) ? y + ~x + 1 :
         (alsu_sel == 2 ) ? y + 1 :
         (alsu_sel == 3 ) ? y - 1 :
         (alsu_sel == 4 ) ? x & y :
@@ -146,7 +162,9 @@ module alsu(input clk, input reset, input alsu_en, input [31:0] inp_reg, input [
         (alsu_sel == 13) ? y <<< 1 :
         (alsu_sel == 14) ? (y << 1) | (y >> 31) :
         (alsu_sel == 15) ? (y << 1) | (y >> 31) : // TODO
-        (alsu_sel == 16) ? inp_reg : // TODO
+        (alsu_sel == 16) ? inp_reg : 
+        (alsu_sel == 17) ? y / x: 
+        (alsu_sel == 18) ? y * x: 
         x;
 
     always @(posedge clk) begin 
@@ -442,6 +460,8 @@ endmodule
 `define  INST_JG     20
 `define  INST_JL     21
 `define  INST_RAC    22
+`define  INST_DIV    23
+`define  INST_MUL    24
 `define  INST_MAT    118
 `define  INST_MTA    119
 `define  INST_INP    120
@@ -691,6 +711,16 @@ module cu(input clk,
                             bus_sel <= `BUS_DR;
                             pc_en <= 1;
                         end 
+                    end
+                    `INST_MUL: begin
+                        alsu_sel <= `ALSU_MUL;
+                        ac_en <= 1;
+                        alsu_en <= 1;
+                    end
+                    `INST_DIV: begin
+                        alsu_sel <= `ALSU_DIV;
+                        ac_en <= 1;
+                        alsu_en <= 1;
                     end
                     `INST_MAT: begin // move ac to tr
                         bus_sel <= `BUS_AC;

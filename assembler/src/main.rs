@@ -179,19 +179,23 @@ fn parse_asm(src: &str) -> Vec<Instruction> {
             "nop" => inst_arm!(line, insts, label, InstType::Nop, Flags::NONE),
             "mta" => inst_arm!(line, insts, label, InstType::Mta, Flags::NONE),
             "mat" => inst_arm!(line, insts, label, InstType::Mat, Flags::NONE),
-            "andi" => inst_arm!(line, insts, label, InstType::And, Flags(vec!['i'])),
-            "ori" => inst_arm!(line, insts, label, InstType::Or, Flags(vec!['i'])),
-            "addi" => inst_arm!(line, insts, label, InstType::Add, Flags(vec!['i'])),
-            "subi" => inst_arm!(line, insts, label, InstType::Sub, Flags(vec!['i'])),
-            "xori" => inst_arm!(line, insts, label, InstType::Xor, Flags(vec!['i'])),
-            "laci" => inst_arm!(line, insts, label, InstType::Lac, Flags(vec!['i'])),
-            "ltri" => inst_arm!(line, insts, label, InstType::Ltr, Flags(vec!['i'])),
-            "waci" => inst_arm!(line, insts, label, InstType::Wac, Flags(vec!['i'])),
-            "jmpi" => inst_arm!(line, insts, label, InstType::Jmp, Flags(vec!['i'])),
-            "jei" => inst_arm!(line, insts, label, InstType::Je, Flags(vec!['i'])),
-            "jnei" => inst_arm!(line, insts, label, InstType::Jne, Flags(vec!['i'])),
-            "jgi" => inst_arm!(line, insts, label, InstType::Jg, Flags(vec!['i'])),
-            "jli" => inst_arm!(line, insts, label, InstType::Jl, Flags(vec!['i'])),
+            "div" => inst_arm!(line, insts, label, InstType::Div, Flags::NONE),
+            "mul" => inst_arm!(line, insts, label, InstType::Mul, Flags::NONE),
+            "divi" => inst_arm!(line, insts, label, InstType::Div, Flags::i()),
+            "muli" => inst_arm!(line, insts, label, InstType::Mul, Flags::i()),
+            "andi" => inst_arm!(line, insts, label, InstType::And, Flags::i()),
+            "ori" => inst_arm!(line, insts, label, InstType::Or, Flags::i()),
+            "addi" => inst_arm!(line, insts, label, InstType::Add, Flags::i()),
+            "subi" => inst_arm!(line, insts, label, InstType::Sub, Flags::i()),
+            "xori" => inst_arm!(line, insts, label, InstType::Xor, Flags::i()),
+            "laci" => inst_arm!(line, insts, label, InstType::Lac, Flags::i()),
+            "ltri" => inst_arm!(line, insts, label, InstType::Ltr, Flags::i()),
+            "waci" => inst_arm!(line, insts, label, InstType::Wac, Flags::i()),
+            "jmpi" => inst_arm!(line, insts, label, InstType::Jmp, Flags::i()),
+            "jei" => inst_arm!(line, insts, label, InstType::Je, Flags::i()),
+            "jnei" => inst_arm!(line, insts, label, InstType::Jne, Flags::i()),
+            "jgi" => inst_arm!(line, insts, label, InstType::Jg, Flags::i()),
+            "jli" => inst_arm!(line, insts, label, InstType::Jl, Flags::i()),
             _ => panic!("unknown instruction {word}"),
         }
     }
@@ -287,6 +291,8 @@ impl Bin {
                     InstType::Jg => 20,
                     InstType::Jl => 21,
                     InstType::Rac => 22,
+                    InstType::Div => 23,
+                    InstType::Mul => 24,
                     InstType::Mat => 118,
                     InstType::Mta => 119,
                     InstType::Inp => 120,
@@ -366,6 +372,10 @@ struct Flags(Vec<char>);
 
 impl Flags {
     const NONE: Self = Self(Vec::new());
+
+    pub fn i() -> Self {
+        Self(vec!['i'])
+    }
 }
 
 #[derive(Debug)]
@@ -421,6 +431,10 @@ enum InstType {
     Mat,
     // move tr to ac
     Mta,
+    // mul
+    Mul,
+    // div
+    Div,
 }
 
 #[allow(unused)]
