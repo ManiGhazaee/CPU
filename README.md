@@ -150,7 +150,7 @@ e.g.
 
 - Immediate:
   - `0d<number>` decimal number, e.g. `0d1234`
-  - `0x<number>` hexadecimal number, e.g. `0dF89E`
+  - `0x<number>` hexadecimal number, e.g. `0xF89E`
 - Direct:
   - `[0d<number>]` e.g. `[0d8943]`
   - `[0x<number>]` e.g. `[0xF9AE]`
