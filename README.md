@@ -177,6 +177,8 @@ else:
 
 with `a` and `b` hard coded.
 
+[Prime generator](./examples/prime_generator.txt) code that generates and prints prime numbers from 1 to 100
+
 [Interrupt](./examples/interrupt.txt) a simple code that simulates an interrupt.
 prints `"interrupt handled"` if it has successfully executed interrupt code.
 prints `"test finished successfully"` if value in accumulator is the same before and after interrupt handle, else prints `"test failed"`
